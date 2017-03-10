@@ -3,6 +3,8 @@
 # @Date    : 2017-03-10
 # @Author  : Shiyue Nie
 
+# ref: https://www.programmableweb.com/news/how-to-start-using-google-cloud-natural-language-api/how-to/2016/09/01
+
 from googleapiclient import discovery
 import httplib2
 from oauth2client.client import GoogleCredentials

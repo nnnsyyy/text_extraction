@@ -3,6 +3,9 @@
 # @Date    : 2017-03-03
 # @Author  : Shiyue Nie
 
+# ref : https://cloud.google.com/vision/docs/how-to
+#       https://cloud.google.com/vision/docs/tutorials
+
 import io
 import os
 
