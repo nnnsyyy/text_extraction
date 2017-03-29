@@ -10,7 +10,7 @@ Schedule:
 - - Google Cloud Natural Language API (Reject)
 
 - Pipeline demo
--- Image cut
--- Text extraction (document text API)
--- Label (with list)
--- Draw box and save labels
+- - Image cut
+- - Text extraction (document text API)
+- - Label (with list)
+- - Draw box and save labels
