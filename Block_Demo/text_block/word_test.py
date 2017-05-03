@@ -1,6 +1,6 @@
 # @Project : block_extraction
-# @Filename: text
-# @Date    : 2017-03-28
+# @Filename: word_test
+# @Date    : 2017-04-26
 # @Author  : Shiyue Nie
 
 
@@ -99,9 +99,9 @@ def text_extraction(input_folder, output_folder, output_level, name, fm_list):
                             for word in words:
                                 word_text = ""
                                 symbols = word['symbols']
-                                # print('word symbols')
+                                print('word symbols')
                                 for symbol in symbols:
-                                    # print(symbol['text'])
+                                    print(symbol['text'])
                                     word_text = word_text + symbol['text']
                                 if para_text == "":
                                     para_text = para_text + word_text
@@ -114,7 +114,7 @@ def text_extraction(input_folder, output_folder, output_level, name, fm_list):
                         page_text = page_text + block_text
 
         # Save output with the drawn polyboxes based on the requested level.
-        im.save(os.path.join(output_folder, output_level + "_" + name))
+        im.save(os.path.join(output_folder, 'try' + "_" + name))
 
 
 def word_combine(para_text, prew, curw):
@@ -139,19 +139,32 @@ def word_combine(para_text, prew, curw):
             para_text = para_text + ' ' + curw
     return para_text
 
+#def single_block(input_folder, output_folder, name, fm_list):
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('input_folder', help='The folder of text_extraction images.')
+    # parser.add_argument('output_folder', help='The folder of block_plot images.')
+    # parser.add_argument('output_level', help='Level of the output. Can be one of 4 options: page, block, para, word')
+    # parser.add_argument('name', help='The name of image.')
+    # args = parser.parse_args([os.path.join(folder, 'text_section'), os.path.join(folder, 'block_plot'), 'block', name])
+    # text_extraction(args.input_folder, args.output_folder, args.output_level, args.name)
+    #output_level = 'para'
+    #output_level = 'block'
+    # text_extraction(input_folder, output_folder, output_level, name, fm_list)
+
 
 def piles_block():
     # input_path = 'E:\workplace\pycharm\\block_extraction\images\\text_section'
     # output_path = 'E:\workplace\pycharm\\block_extraction\images\\block_plot'
     input_path = 'E:/workplace/pycharm/block_extraction/images/text_section'
-    output_path = 'E:/workplace/pycharm/block_extraction/images/block_plot'
+    output_path = 'E:/workplace/pycharm/block_extraction/images'
 
-    for name in os.listdir(input_path):
-        print(name)
-        fm_list = []
-        # detect_document(input_path, output_path, name, fm_list)
-        text_extraction(input_path, output_path, 'block', name, fm_list)
-        blk.save_img_text(name, fm_list)
+    # for name in os.listdir(input_path):
+    name = '10A_216.jpg'
+    print(name)
+    fm_list = []
+    # detect_document(input_path, output_path, name, fm_list)
+    text_extraction(input_path, output_path, 'block', name, fm_list)
+    blk.save_img_text(name, fm_list)
 
 
 piles_block()
