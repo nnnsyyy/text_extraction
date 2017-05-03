@@ -32,6 +32,18 @@ def plot_text():
             cv2.imwrite(os.path.join(output_path, 'mark_' + basename + '.jpg'), nim)
 
 
+def plot_cen(cen, name):
+    input_path = 'E:/workplace/pycharm/block_extraction/images/block_plot'
+    output_path = 'E:/workplace/pycharm/block_extraction/images/'
+    imname = os.path.splitext(name)[0] + '.jpg'
+
+    im = cv2.imread(os.path.join(input_path, 'block_' + imname), 1)
+    nim = copy.copy(im)
+    for index in range(len(cen)):
+        s = str(index+1) + '(' + str(cen[index][0]) + ', ' + str(cen[index][1]) + ')'
+        cv2.putText(nim, s, (cen[index][0], cen[index][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (250, 0, 100), 2)
+    cv2.imwrite(os.path.join(output_path, 'cen_' + imname), nim)
+
 # def plot_text():
 #     json_path = 'E:/workplace/pycharm/block_extraction'
 #     input_path = 'E:/workplace/pycharm/block_extraction/images'

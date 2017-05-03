@@ -11,6 +11,7 @@ import random
 import cv2
 import numpy as np
 import math
+import label.mark as mk
 import format.fragment as fm
 from format.line import detect_riddes, get_line_mask, close_lines
 import copy
@@ -55,6 +56,7 @@ def block_detect(nfm, name, img_path, json_path):
     header_mask = close_lines(mask)
     # Get the area contours
     contours = get_enclosing_contours(255-header_mask)
+    contours.reverse()
     cen = []
     if len(contours) != 8:
         # over 8: keep biggest 8
@@ -65,18 +67,24 @@ def block_detect(nfm, name, img_path, json_path):
         # save center of contours
         cen = cnt_center(contours)
         print('Sorted contour center: {}'.format(cen))
+        #mk.plot_cen(cen, name)
 
     # open json to assign each fm's cnt
     fm_list=[]
     fname = os.path.splitext(name)[0] + '.json'
     file = os.path.join(json_path, fname)
+    blk_cen = []
     with open(file, 'r') as fp:
         raw = json.load(fp)
         for index in range(len(raw)):
             blocks = raw[str(index)]
             [cx, cy] = np.mean(blocks['coordinate'], axis=0)
-            blk = block_cluster(cen, cx, cy)
+            [cx, cy] = [int(cx), int(cy)]
+            blk_cen.append([cx, cy])
+            # blk = block_cluster(cen, cx, cy)
+            blk = block_cluster(contours, cx, cy)
             nfm.setblock(blk)
+    mk.plot_cen(blk_cen, name)
 
 
 def cnt_center(cnt):
@@ -90,19 +98,29 @@ def cnt_center(cnt):
         cen.append([cx, cy])
         #print('contours {}:'.format(i))
         #print('center: (%d, %d)' % (cen[i][0], cen[i][1]))
-    cen.reverse()
+    #cen.reverse()
     return cen
 
 
-def block_cluster(cen, cx, cy):
-    blk = 0
-    dis = 10000
-    for i in range(len(cen)):
-        d = math.sqrt((cen[i][0]-cx)**2 + (cen[i][1]-cy)**2)
-        if d < dis:
+def block_cluster(contours, cx, cy):
+    for i in range(len(contours)):
+        # False: whether the point is inside 1 or outside -1 or on the contour 0.
+        d = cv2.pointPolygonTest(contours[i], (cx, cy), False)
+        if d >= 0:
             blk = i
-            dis = d
+            break
     return blk+1  # block 1-8
+
+
+# def block_cluster(cen, cx, cy):
+#     blk = 0
+#     dis = 10000
+#     for i in range(len(cen)):
+#         d = math.sqrt((cen[i][0]-cx)**2 + (cen[i][1]-cy)**2)
+#         if d < dis:
+#             blk = i
+#             dis = d
+#     return blk+1  # block 1-8
 
 
 def get_enclosing_contours(binary):
@@ -118,7 +136,7 @@ def get_enclosing_contours(binary):
 newfm = fm.Fragment()
 img_path = 'E:/workplace/pycharm/block_extraction/images/text_section'
 json_path = 'E:/workplace/pycharm/block_extraction/results'
-name = '7C_37.jpg' #7C_37
+name = '13B_111.jpg' #7C_37
 block_detect(newfm, name, img_path, json_path)
 
 # newfm = fm.Fragment()
