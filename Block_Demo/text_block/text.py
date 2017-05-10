@@ -25,7 +25,7 @@ from PIL import ImageDraw
 # Check the level to print the polyboxes and provide the output.
 # If the output level is Page, just print the text (Page does not have
 # polyboxes).
-def save_draw_box(draw, ctype, name, output, item, fm_list):
+def save_draw_box(draw, ctype, name, output, item, fm_list, contours, cen):
     if name == ctype:
         if name == "page":
             print(output)
@@ -37,7 +37,9 @@ def save_draw_box(draw, ctype, name, output, item, fm_list):
 
             draw.line(box + [box[0]], width=3, fill='#f000ff')
 
-            temp = copy.copy(blk.fmtoblock(nfm, output, box))
+            cnt = blk.block_detect(contours, cen, box)
+            # print('cnt: {}'.format(cnt))
+            temp = copy.copy(blk.fmtoblock(nfm, output, box, cnt))
             fm_list.append(temp)
 
 
@@ -46,6 +48,8 @@ def text_extraction(input_folder, output_folder, output_level, name, fm_list):
     credentials = ServiceAccountCredentials.from_json_keyfile_name("E:\DHLAB\ptry-efe4ae49a335.json")
     service = discovery.build('vision', 'v1', credentials=credentials)
     img = os.path.join(input_folder, name)
+
+    [contours, cen] = blk.cnt_count(name, input_folder)
 
     with open(img, 'rb') as image:
         # print(os.path.join(input_folder, name))
@@ -110,7 +114,7 @@ def text_extraction(input_folder, output_folder, output_level, name, fm_list):
                                 pre_word = word_text
                             # save_draw_box(draw, output_level, "para", para_text, para, fm_list)
                             block_text = block_text + para_text
-                        save_draw_box(draw, output_level, "block", block_text, block, fm_list)
+                        save_draw_box(draw, output_level, "block", block_text, block, fm_list, contours, cen)
                         page_text = page_text + block_text
 
         # Save output with the drawn polyboxes based on the requested level.
@@ -140,19 +144,13 @@ def word_combine(para_text, prew, curw):
     return para_text
 
 
-def piles_block():
-    # input_path = 'E:\workplace\pycharm\\block_extraction\images\\text_section'
-    # output_path = 'E:\workplace\pycharm\\block_extraction\images\\block_plot'
-    input_path = 'E:/workplace/pycharm/block_extraction/images/text_section'
-    output_path = 'E:/workplace/pycharm/block_extraction/images/block_plot'
+def piles_block(input_path, output_path, json_path):
 
     for name in os.listdir(input_path):
         print(name)
         fm_list = []
         # detect_document(input_path, output_path, name, fm_list)
         text_extraction(input_path, output_path, 'block', name, fm_list)
-        blk.save_img_text(name, fm_list)
+        blk.save_img_text(name, fm_list, json_path)
 
-
-piles_block()
 

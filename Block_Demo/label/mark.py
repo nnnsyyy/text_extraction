@@ -33,6 +33,7 @@ def plot_text():
 
 
 def plot_cen(cen, name):
+    # for testing
     input_path = 'E:/workplace/pycharm/block_extraction/images/block_plot'
     output_path = 'E:/workplace/pycharm/block_extraction/images/'
     imname = os.path.splitext(name)[0] + '.jpg'

@@ -10,9 +10,6 @@ import random
 
 import cv2
 import numpy as np
-import math
-import label.mark as mk
-import format.fragment as fm
 from format.line import detect_riddes, get_line_mask, close_lines
 import copy
 
@@ -28,23 +25,54 @@ def listtodict(nfm):
     return dicfm
 
 
-def fmtoblock(nfm, ntranscription, ncoordinate, ntag=None):
+def fmtoblock(nfm, ntranscription, ncoordinate, cnt, ntag=None):
     if ntag is None:
         ntag = random.choice(tag_list)
-    return nfm.setfragment(ntag, ntranscription, ncoordinate)
+    return nfm.setfragment(ntag, ntranscription, ncoordinate, cnt)
 
 
-def save_img_text(name, fm_list):
+def save_img_text(name, fm_list, json_path):
     raw = listtodict(fm_list)
     fname = os.path.splitext(name)[0] + '.json'
     #fname = name + '.json'
-    file = os.path.join('E:/workplace/pycharm/block_extraction/results', fname)
+    file = os.path.join(json_path, fname)
     #file = os.path.join('E:/workplace/pycharm/block_extraction', fname)
     with open(file, 'w') as fp:
         json.dump(raw, fp, indent=4)
 
 
-def block_detect(nfm, name, img_path, json_path):
+# def block_detect(nfm, name, contours, cen, json_path):
+#     # open json to assign each fm's cnt
+#     if len(cen) > 0:
+#         fm_list=[]
+#         fname = os.path.splitext(name)[0] + '.json'
+#         file = os.path.join(json_path, fname)
+#         blk_cen = []
+#         with open(file, 'r') as fp:
+#             raw = json.load(fp)
+#             for index in range(len(raw)):
+#                 blocks = raw[str(index)]
+#                 [cx, cy] = np.mean(blocks['coordinate'], axis=0)
+#                 [cx, cy] = [int(cx), int(cy)]
+#                 blk_cen.append([cx, cy])
+#                 # blk = block_cluster(cen, cx, cy)
+#                 blk = block_cluster(contours, cx, cy)
+#                 nfm.setblock(blk)
+#     mk.plot_cen(blk_cen, name)
+
+
+def block_detect(contours, cen, box):
+    # fm center
+    if len(cen) > 0:
+        [cx, cy] = np.mean(box, axis=0)
+        [cx, cy] = [int(cx), int(cy)]
+        # print('center (cx, cy): ({}, {})'.format(cx, cy))
+        blk = block_cluster(contours, cx, cy)
+        #mk.plot_cen(blk_cen, name)
+        return blk
+
+
+def cnt_count(name, img_path):
     img = cv2.imread(os.path.join(img_path, name), 0)
     # Filter the noise
     bimg = cv2.fastNlMeansDenoising(copy.copy(img), h=8, searchWindowSize=50)
@@ -61,30 +89,14 @@ def block_detect(nfm, name, img_path, json_path):
     if len(contours) != 8:
         # over 8: keep biggest 8
         # less than 8: defaults
-        #DocumentInfo.logger.warning('Number of area contours unusual : {}'.format(len(contours)))
+        # DocumentInfo.logger.warning('Number of area contours unusual : {}'.format(len(contours)))
         print('Img {} Number of area contours unusual : {}'.format(name, len(contours)))
     else:
         # save center of contours
         cen = cnt_center(contours)
-        print('Sorted contour center: {}'.format(cen))
-        #mk.plot_cen(cen, name)
-
-    # open json to assign each fm's cnt
-    fm_list=[]
-    fname = os.path.splitext(name)[0] + '.json'
-    file = os.path.join(json_path, fname)
-    blk_cen = []
-    with open(file, 'r') as fp:
-        raw = json.load(fp)
-        for index in range(len(raw)):
-            blocks = raw[str(index)]
-            [cx, cy] = np.mean(blocks['coordinate'], axis=0)
-            [cx, cy] = [int(cx), int(cy)]
-            blk_cen.append([cx, cy])
-            # blk = block_cluster(cen, cx, cy)
-            blk = block_cluster(contours, cx, cy)
-            nfm.setblock(blk)
-    mk.plot_cen(blk_cen, name)
+        # print('Sorted contour center: {}'.format(cen))
+        # mk.plot_cen(cen, name)
+    return contours, cen
 
 
 def cnt_center(cnt):
@@ -103,13 +115,14 @@ def cnt_center(cnt):
 
 
 def block_cluster(contours, cx, cy):
+    blk_cnt = 0
     for i in range(len(contours)):
         # False: whether the point is inside 1 or outside -1 or on the contour 0.
         d = cv2.pointPolygonTest(contours[i], (cx, cy), False)
         if d >= 0:
-            blk = i
+            blk_cnt = i
             break
-    return blk+1  # block 1-8
+    return blk_cnt + 1  # block 1-8
 
 
 # def block_cluster(cen, cx, cy):
@@ -133,11 +146,12 @@ def get_enclosing_contours(binary):
     return results
 
 
-newfm = fm.Fragment()
-img_path = 'E:/workplace/pycharm/block_extraction/images/text_section'
-json_path = 'E:/workplace/pycharm/block_extraction/results'
-name = '13B_111.jpg' #7C_37
-block_detect(newfm, name, img_path, json_path)
+# newfm = fm.Fragment()
+# img_path = 'E:/workplace/pycharm/block_extraction/images/text_section'
+# json_path = 'E:/workplace/pycharm/block_extraction/results'
+# name = '13B_111.jpg' #7C_37
+# [contours, cen] = cnt_count(name, img_path)
+# block_detect(newfm, name, contours, cen, json_path)
 
 # newfm = fm.Fragment()
 # fragments = []

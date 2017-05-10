@@ -31,13 +31,13 @@ class Fragment:
 
     def setblock(self, block):
         self.block = block
-        print("Block: %s" % self.block)
+        # print("Block: %s" % self.block)
 
-    def setfragment(self, ntag, ntranscription, ncoordinate):
+    def setfragment(self, ntag, ntranscription, ncoordinate, nblock):
         self.settag(ntag)
         self.settranscription(ntranscription)
         self.setcoordinate(ncoordinate)
-        #self.setblock(nblock)
+        self.setblock(nblock)
 
         #return nfragment.__dict__
         return self.__dict__
